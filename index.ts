@@ -13,7 +13,7 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.send("Hello World - simple api with JWT!");
+  res.send({ message: "Hello World!" });
 });
 
 app.post("/token", function (req, res) {
@@ -22,6 +22,7 @@ app.post("/token", function (req, res) {
   refreshToken = generateToken(60 * 60);
   res.status(200).send({ token, refreshToken });
 });
+
 app.post("/refreshToken", function (req, res) {
   const refreshTokenFromPost = req.body.refreshToken;
   if (refreshToken !== refreshTokenFromPost) {
@@ -34,6 +35,7 @@ app.post("/refreshToken", function (req, res) {
     res.status(200).send({ token, refreshToken });
   }, 3000);
 });
+
 app.get("/protected/:id/:delay?", verifyToken, (req, res) => {
   const id = req.params.id;
   const delay = req.params.delay ? +req.params.delay : 1000;
@@ -41,6 +43,17 @@ app.get("/protected/:id/:delay?", verifyToken, (req, res) => {
     res.status(200).send(`{"message": "protected endpoint ${id}"}`);
   }, delay);
 });
+
+app.post("/login", (req, res) => {
+  const username = req.body.username;
+  const password = req.body.password;
+
+  const user = { name: username };
+
+  const token = generateToken(60);
+  res.status(200).send({ token });
+});
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
