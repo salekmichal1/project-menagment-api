@@ -25,6 +25,8 @@ app.post("/token", function (req, res) {
 
 app.post("/refreshToken", function (req, res) {
   const refreshTokenFromPost = req.body.refreshToken;
+  console.log(refreshTokenFromPost, refreshToken);
+
   if (refreshToken !== refreshTokenFromPost) {
     res.status(400).send("Bad refresh token!");
   }
@@ -50,8 +52,19 @@ app.post("/login", (req, res) => {
 
   const user = { name: username };
 
-  const token = generateToken(60);
-  res.status(200).send({ token });
+  const token = generateToken(10);
+  refreshToken = generateToken(60 * 60);
+
+  res.status(200).send({ token, refreshToken });
+});
+
+app.delete("/logout", (req, res) => {
+  if (refreshToken === req.body.refreshToken) {
+    refreshToken = "";
+    res.status(200).send({ message: "Logged out!" });
+  } else {
+    res.status(400).send({ message: "Bad refresh token!" });
+  }
 });
 
 app.listen(port, () => {
@@ -71,6 +84,8 @@ function verifyToken(req: any, res: any, next: any) {
   const token = authHeader?.split(" ")[1];
 
   if (!token) return res.sendStatus(403);
+
+  console.log(token);
 
   jwt.verify(token, tokenSecret, (err: any, user: any) => {
     if (err) {
