@@ -1,0 +1,39 @@
+POST http://localhost:3000/refreshToken
+Content-Type: application/json
+
+{
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTc0MDExNDIsImZvbyI6ImJhciIsImlhdCI6MTcxNzM5NzU0Mn0.R0GYTyZUPMV6UZ_r_OhessuondE8meHZobvQBwAXTnc"
+}
+
+###
+
+POST http://localhost:3000/token
+Content-Type: application/json
+
+{
+  "exp": 10
+}
+
+###
+
+GET http://localhost:3000/protected/10
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTc0MDA3MjIsImZvbyI6ImJhciIsImlhdCI6MTcxNzM5NzEyMn0.lGylicH6kKO80i7MYCf7yG0Dv-0L6fAAB1m5kCWbrUk
+
+###
+
+POST http://localhost:3000/refreshToken
+Content-Type: application/json
+
+{
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTc1OTM5NjQsInVzZXIiOnsic3VybmFtZSI6IlNhbGVrIiwibmFtZSI6Ik1pY2hhbCIsInBvc2l0aW9uIjoiZGV2ZWxvcGVyIiwidXNlcm5hbWUiOiJtaWN0ZXMiLCJpZCI6InU3Smt6TEpGZVRaY21xM0VrZGJ2In0sImlhdCI6MTcxNzU5MDM2NH0.Jx_Qb2vqnPpqYNjwW_-UDpkUBuFPsWA_Zo_dcw3qKiM"
+}
+
+###
+
+POST http://localhost:3000/login
+Content-Type: application/json
+
+{
+  "username": "mictes",
+  "password": "test"
+}
