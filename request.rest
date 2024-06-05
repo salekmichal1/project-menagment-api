@@ -1,0 +1,20 @@
+POST http://localhost:3000/refreshToken
+Content-Type: application/json
+
+{
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTc0MDExNDIsImZvbyI6ImJhciIsImlhdCI6MTcxNzM5NzU0Mn0.R0GYTyZUPMV6UZ_r_OhessuondE8meHZobvQBwAXTnc"
+}
+
+###
+
+POST http://localhost:3000/token
+Content-Type: application/json
+
+{
+  "exp": 10
+}
+
+###
+
+GET http://localhost:3000/protected/10
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTc0MDA3MjIsImZvbyI6ImJhciIsImlhdCI6MTcxNzM5NzEyMn0.lGylicH6kKO80i7MYCf7yG0Dv-0L6fAAB1m5kCWbrUk

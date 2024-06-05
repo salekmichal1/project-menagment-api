@@ -2,9 +2,24 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import "dotenv/config";
 import cors from "cors";
+import { get } from "http";
 
 const app = express();
 const port = 3000;
+
+//////////////////////
+// connect to firebase
+
+const admin = require("firebase-admin");
+const serviceAccount = require("./managme-database-firebase-adminsdk-j9dgs-3792624515.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+
+const db = admin.firestore();
+
+//////////////////////
 
 const tokenSecret = process.env.TOKEN_SECRET as string;
 let refreshToken: string;
@@ -29,13 +44,14 @@ app.post("/refreshToken", function (req, res) {
 
   if (refreshToken !== refreshTokenFromPost) {
     res.status(400).send("Bad refresh token!");
+  } else {
+    const expTime = req.headers.exp || 60;
+    const token = generateToken(+expTime);
+    refreshToken = generateToken(60 * 60);
+    setTimeout(() => {
+      res.status(200).send({ token, refreshToken });
+    }, 3000);
   }
-  const expTime = req.headers.exp || 60;
-  const token = generateToken(+expTime);
-  refreshToken = generateToken(60 * 60);
-  setTimeout(() => {
-    res.status(200).send({ token, refreshToken });
-  }, 3000);
 });
 
 app.get("/protected/:id/:delay?", verifyToken, (req, res) => {
@@ -50,12 +66,30 @@ app.post("/login", (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
 
-  const user = { name: username };
+  const user = { name: username, password: password };
 
-  const token = generateToken(10);
-  refreshToken = generateToken(60 * 60);
-
-  res.status(200).send({ token, refreshToken });
+  db.collection("Users")
+    .get()
+    .then((snapshot: any) => {
+      // const users: any[] = [];
+      snapshot.forEach((doc: any) => {
+        // users.push(doc.data());
+        if (
+          doc.data().username === username &&
+          doc.data().password === password
+        ) {
+          const token = generateToken(60);
+          refreshToken = generateToken(60 * 60);
+          res.status(200).send({ token, refreshToken });
+        } else {
+          res.status(400).send({ message: "Bad username or password!" });
+        }
+      });
+    })
+    .catch((error: any) => {
+      console.log("Error getting users:", error);
+      res.status(500).send("Error getting users");
+    });
 });
 
 app.delete("/logout", (req, res) => {
