@@ -2,7 +2,6 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import "dotenv/config";
 import cors from "cors";
-import { get } from "http";
 
 const app = express();
 const port = 3000;
@@ -40,6 +39,7 @@ app.post("/token", function (req, res) {
 
 app.post("/refreshToken", function (req, res) {
   const refreshTokenFromPost = req.body.refreshToken;
+  console.log(refreshTokenFromPost, refreshToken);
 
   if (refreshToken !== refreshTokenFromPost) {
     res.status(400).send("Bad refresh token!");
@@ -178,6 +178,8 @@ function verifyToken(req: any, res: any, next: any) {
   const token = authHeader?.split(" ")[1];
 
   if (!token) return res.sendStatus(403);
+
+  console.log(token);
 
   jwt.verify(token, tokenSecret, (err: any, user: any) => {
     if (err) {
