@@ -2,6 +2,7 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import "dotenv/config";
 import cors from "cors";
+import { user } from "./types";
 
 const app = express();
 const port = 3000;
@@ -39,20 +40,22 @@ app.post("/token", function (req, res) {
 
 app.post("/refreshToken", function (req, res) {
   const refreshTokenFromPost = req.body.refreshToken;
-  console.log(refreshTokenFromPost, refreshToken);
+  console.log(refreshTokenFromPost, "//", refreshToken);
 
   if (refreshToken !== refreshTokenFromPost) {
     res.status(400).send("Bad refresh token!");
   } else {
     const expTime = req.headers.exp || 60;
-    // const token = generateToken(+expTime);
-    // refreshToken = generateToken(60 * 60);
-    // setTimeout(() => {
-    //   res.status(200).send({ token, refreshToken });
-    // }, 3000);
-    jwt.verify(refreshToken, tokenSecret, (err, user) => {
+
+    jwt.verify(refreshToken, tokenSecret, (err, user: any) => {
       if (err) {
         return res.status(403).send({ message: "Invalid refresh token" });
+      } else {
+        const token = generateToken(+expTime, user.user);
+        refreshToken = generateToken(60 * 60, user.user);
+        setTimeout(() => {
+          res.status(200).send({ token, refreshToken, user: user.user });
+        }, 3000);
       }
       console.log(user);
       // Fetch the user data from the database

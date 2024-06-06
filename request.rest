@@ -1,11 +1,3 @@
-POST http://localhost:3000/refreshToken
-Content-Type: application/json
-
-{
-  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTc0MDExNDIsImZvbyI6ImJhciIsImlhdCI6MTcxNzM5NzU0Mn0.R0GYTyZUPMV6UZ_r_OhessuondE8meHZobvQBwAXTnc"
-}
-
-###
 
 POST http://localhost:3000/token
 Content-Type: application/json
@@ -22,10 +14,11 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTc0MDA3M
 ###
 
 POST http://localhost:3000/refreshToken
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTc2NjkzMjksInVzZXIiOnsic3VybmFtZSI6IlNhbGVrIiwibmFtZSI6Ik1pY2hhbCIsInBvc2l0aW9uIjoiZGV2ZWxvcGVyIiwidXNlcm5hbWUiOiJtaWN0ZXMiLCJpZCI6InU3Smt6TEpGZVRaY21xM0VrZGJ2In0sImlhdCI6MTcxNzY2NTcyOX0.QxABaJ-i6Dh_cNb1jbH3eGWpeUsH5tZprOqTny8DSIM
 Content-Type: application/json
 
 {
-  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTc1OTM5NjQsInVzZXIiOnsic3VybmFtZSI6IlNhbGVrIiwibmFtZSI6Ik1pY2hhbCIsInBvc2l0aW9uIjoiZGV2ZWxvcGVyIiwidXNlcm5hbWUiOiJtaWN0ZXMiLCJpZCI6InU3Smt6TEpGZVRaY21xM0VrZGJ2In0sImlhdCI6MTcxNzU5MDM2NH0.Jx_Qb2vqnPpqYNjwW_-UDpkUBuFPsWA_Zo_dcw3qKiM"
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTc2NzA4MTEsInVzZXIiOnsic3VybmFtZSI6IlNhbGVrIiwibmFtZSI6Ik1pY2hhbCIsInBvc2l0aW9uIjoiZGV2ZWxvcGVyIiwidXNlcm5hbWUiOiJtaWN0ZXMiLCJpZCI6InU3Smt6TEpGZVRaY21xM0VrZGJ2In0sImlhdCI6MTcxNzY2NzIxMX0.dCz2vrfY42WxK4cpQ6ymqGCLxL47H3y-NQkGqn6SiMU"
 }
 
 ###
