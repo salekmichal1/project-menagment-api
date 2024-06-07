@@ -51,9 +51,9 @@ app.post("/refreshToken", function (req, res) {
       if (err) {
         return res.status(403).send({ message: "Invalid refresh token" });
       } else {
-        const token = generateToken(+expTime, user.user);
-        refreshToken = generateToken(60 * 60, user.user);
         setTimeout(() => {
+          const token = generateToken(+expTime, user.user);
+          refreshToken = generateToken(60 * 60, user.user);
           res.status(200).send({ token, refreshToken, user: user.user });
         }, 3000);
       }
