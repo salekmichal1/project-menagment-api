@@ -18,7 +18,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTc2NjkzM
 Content-Type: application/json
 
 {
-  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTc2NzA4MTEsInVzZXIiOnsic3VybmFtZSI6IlNhbGVrIiwibmFtZSI6Ik1pY2hhbCIsInBvc2l0aW9uIjoiZGV2ZWxvcGVyIiwidXNlcm5hbWUiOiJtaWN0ZXMiLCJpZCI6InU3Smt6TEpGZVRaY21xM0VrZGJ2In0sImlhdCI6MTcxNzY2NzIxMX0.dCz2vrfY42WxK4cpQ6ymqGCLxL47H3y-NQkGqn6SiMU"
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTc4ODE0MDcsInVzZXIiOnsic3VybmFtZSI6IlNhbGVrIiwibmFtZSI6Ik1pY2hhbCIsInBvc2l0aW9uIjoiZGV2ZWxvcGVyIiwidXNlcm5hbWUiOiJtaWN0ZXMiLCJpZCI6InU3Smt6TEpGZVRaY21xM0VrZGJ2In0sImlhdCI6MTcxNzg3NzgwN30.En6OWt3Rf12AFLlUQmnyuffd_lHwSv_eZvmvmwtbgaM"
 }
 
 ###
@@ -29,4 +29,14 @@ Content-Type: application/json
 {
   "username": "mictes",
   "password": "test"
+}
+
+###
+
+DELETE  http://localhost:3000/logout
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTc5NjU1NjEsInVzZXIiOnsic3VybmFtZSI6IlNhbGVrIiwibmFtZSI6Ik1pY2hhbCIsInBvc2l0aW9uIjoiZGV2ZWxvcGVyIiwidXNlcm5hbWUiOiJtaWN0ZXMiLCJpZCI6InU3Smt6TEpGZVRaY21xM0VrZGJ2In0sImlhdCI6MTcxNzk2MTk2MX0.IdkKjMISapVLrD2waqhbYyV7rKXHyqoIjwZCx1Uo2TM
+Content-Type: application/json
+
+{
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTc5NjYxOTksInVzZXIiOnsic3VybmFtZSI6IlNhbGVrIiwibmFtZSI6Ik1pY2hhbCIsInBvc2l0aW9uIjoiZGV2ZWxvcGVyIiwidXNlcm5hbWUiOiJtaWN0ZXMiLCJpZCI6InU3Smt6TEpGZVRaY21xM0VrZGJ2In0sImlhdCI6MTcxNzk2MjU5OX0.TkGqF_9qoIEyztgPZFSGHtD4ZyY6SppmKDQphGiu3x0"
 }

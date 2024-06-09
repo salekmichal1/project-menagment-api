@@ -1,8 +1,7 @@
-import express from "express";
+import express, { query } from "express";
 import jwt from "jsonwebtoken";
 import "dotenv/config";
 import cors from "cors";
-import { user } from "./types";
 
 const app = express();
 const port = 3000;
@@ -22,7 +21,7 @@ const db = admin.firestore();
 //////////////////////
 
 const tokenSecret = process.env.TOKEN_SECRET as string;
-let refreshToken: string;
+// let refreshToken: string;
 
 app.use(cors());
 app.use(express.json());
@@ -31,53 +30,68 @@ app.get("/", (req, res) => {
   res.send({ message: "Hello World!" });
 });
 
-app.post("/token", function (req, res) {
-  const expTime = req.body.exp || 60;
-  const token = generateToken(+expTime);
-  refreshToken = generateToken(60 * 60);
-  res.status(200).send({ token, refreshToken });
-});
+// app.post("/token", function (req, res) {
+//   const expTime = req.body.exp || 60;
+//   const token = generateToken(+expTime);
+//   refreshToken = generateToken(60 * 60);
+//   res.status(200).send({ token, refreshToken });
+// });
 
 app.post("/refreshToken", function (req, res) {
-  const refreshTokenFromPost = req.body.refreshToken;
-  console.log(refreshTokenFromPost, "//", refreshToken);
+  const refreshTokenFromPost: string = req.body.refreshToken;
 
-  if (refreshToken !== refreshTokenFromPost) {
-    res.status(400).send("Bad refresh token!");
-  } else {
-    const expTime = req.headers.exp || 60;
+  const refreshTokenRef = db.collection("RefreshTokens");
 
-    jwt.verify(refreshToken, tokenSecret, (err, user: any) => {
-      if (err) {
-        return res.status(403).send({ message: "Invalid refresh token" });
-      } else {
-        setTimeout(() => {
-          const token = generateToken(+expTime, user.user);
-          refreshToken = generateToken(60 * 60, user.user);
-          res.status(200).send({ token, refreshToken, user: user.user });
-        }, 3000);
-      }
-      console.log(user);
-      // Fetch the user data from the database
-      // db.collection("Users")
-      //   .doc((user as { id: string }).id)
-      //   .get()
-      //   .then((doc: any) => {
-      //     if (!doc.exists) {
-      //       return res.status(404).send({ message: "User not found" });
-      //     }
+  async function fetchData() {
+    try {
+      const refreshTokenQuery = await refreshTokenRef
+        .where("refreshToken", "==", refreshTokenFromPost)
+        .get()
+        .then((docSnapShot: any) => {
+          if (docSnapShot.empty) {
+            res.status(400).send("Token not found!");
+            return;
+          }
+          let tokenFound: boolean = false;
+          for (const doc of docSnapShot.docs) {
+            if (doc.data().refreshToken === refreshTokenFromPost) {
+              tokenFound = true;
+              const expTime = req.headers.exp || 60;
+              jwt.verify(
+                refreshTokenFromPost,
+                tokenSecret,
+                (err, user: any) => {
+                  if (err) {
+                    return res
+                      .status(403)
+                      .send({ message: "Invalid refresh token" });
+                  } else {
+                    const token = generateToken(+expTime, user.user);
+                    const refreshToken = generateToken(60 * 60, user.user);
+                    db.collection("RefreshTokens").add({
+                      refreshToken: refreshToken,
+                      date: new Date(),
+                    });
+                    res
+                      .status(200)
+                      .send({ token, refreshToken, user: user.user });
+                  }
+                }
+              );
+              break;
+            }
+          }
 
-      //     const userData = doc.data();
-      //     delete userData.password; // Don't send the password back to the client
-
-      //     res.status(200).send({ user: userData });
-      //   })
-      //   .catch((error: any) => {
-      //     console.error("Error fetching user data:", error);
-      //     res.status(500).send({ message: "Error fetching user data" });
-      //   });
-    });
+          if (!tokenFound) {
+            res.status(400).send("Bad refresh token!");
+          }
+        });
+    } catch (error) {
+      console.error(error);
+    }
   }
+
+  fetchData();
 });
 
 // app.post('/refresh-token', (req, res) => {
@@ -140,7 +154,12 @@ app.post("/login", (req, res) => {
           user.id = doc.id;
           delete user.password;
           const token = generateToken(60, user);
-          refreshToken = generateToken(60 * 60, user);
+          const refreshToken = generateToken(60 * 60, user);
+          db.collection("RefreshTokens").add({
+            refreshToken: refreshToken,
+            date: new Date(),
+          });
+
           res.status(200).send({ token, refreshToken, user });
         }
       });
@@ -156,12 +175,34 @@ app.post("/login", (req, res) => {
 });
 
 app.delete("/logout", (req, res) => {
-  if (refreshToken === req.body.refreshToken) {
-    refreshToken = "";
-    res.status(200).send({ message: "Logged out!" });
-  } else {
-    res.status(400).send({ message: "Bad refresh token!" });
-  }
+  const refreshTokenFromPost: string = req.body.refreshToken;
+
+  const refreshTokenRef = db.collection("RefreshTokens");
+
+  const fetchData = async function () {
+    try {
+      const refreshTokenQuery = await refreshTokenRef
+        .where("refreshToken", "==", refreshTokenFromPost)
+        .get()
+        .then((docSnapShot: any) => {
+          if (docSnapShot.empty) {
+            res.status(400).send("Token not found!");
+            return;
+          }
+          for (const doc of docSnapShot.docs) {
+            if (doc.data().refreshToken === refreshTokenFromPost) {
+              refreshTokenRef.doc(doc.id).delete();
+              res.status(200).send({ message: "Logged out!" });
+              break;
+            }
+          }
+        });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  fetchData();
 });
 
 app.listen(port, () => {
