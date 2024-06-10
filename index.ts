@@ -1,7 +1,8 @@
-import express, { query } from "express";
+import express from "express";
 import jwt from "jsonwebtoken";
 import "dotenv/config";
 import cors from "cors";
+import cron from "node-cron";
 
 const app = express();
 const port = 3000;
@@ -49,7 +50,7 @@ app.post("/refreshToken", function (req, res) {
         .get()
         .then((docSnapShot: any) => {
           if (docSnapShot.empty) {
-            res.status(400).send("Token not found!");
+            res.status(403).send({ message: "Token not found" });
             return;
           }
           let tokenFound: boolean = false;
@@ -234,3 +235,25 @@ function verifyToken(req: any, res: any, next: any) {
     next();
   });
 }
+
+// Schedule a task to run every 24 hours
+cron.schedule("0 0 * * *", async () => {
+  const now = admin.firestore.Timestamp.now();
+  const twentyFourHoursAgo = admin.firestore.Timestamp.fromDate(
+    new Date(now.toDate().getTime() - 24 * 60 * 60 * 1000)
+  );
+
+  const expiredTokensSnapshot = await admin
+    .firestore()
+    .collection("RefreshTokens")
+    .where("date", "<", twentyFourHoursAgo)
+    .get();
+
+  const batch = admin.firestore().batch();
+
+  expiredTokensSnapshot.docs.forEach((doc: any) => {
+    batch.delete(doc.ref);
+  });
+  console.log("done");
+  return batch.commit();
+});
