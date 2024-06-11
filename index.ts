@@ -22,14 +22,9 @@ const db = admin.firestore();
 //////////////////////
 
 const tokenSecret = process.env.TOKEN_SECRET as string;
-// let refreshToken: string;
 
 app.use(cors());
 app.use(express.json());
-
-app.get("/", (req, res) => {
-  res.send({ message: "Hello World!" });
-});
 
 // app.post("/token", function (req, res) {
 //   const expTime = req.body.exp || 60;
@@ -143,9 +138,7 @@ app.post("/login", (req, res) => {
     .get()
     .then((snapshot: any) => {
       let userFound: boolean = false;
-      // const users: any[] = [];
       snapshot.forEach((doc: any) => {
-        // users.push(doc.data());
         if (
           doc.data().username === username &&
           doc.data().password === password
