@@ -25,6 +25,7 @@ const tokenSecret = process.env.TOKEN_SECRET as string;
 
 app.use(cors());
 app.use(express.json());
+const bcrypt = require("bcrypt");
 
 // app.post("/token", function (req, res) {
 //   const expTime = req.body.exp || 60;
@@ -130,42 +131,96 @@ app.get("/protected/:id/:delay?", verifyToken, (req, res) => {
   }, delay);
 });
 
-app.post("/login", (req, res) => {
-  const username = req.body.username;
-  const password = req.body.password;
+const hash = function () {
+  const saltRounds = 10;
 
-  db.collection("Users")
-    .get()
-    .then((snapshot: any) => {
-      let userFound: boolean = false;
-      snapshot.forEach((doc: any) => {
-        if (
-          doc.data().username === username &&
-          doc.data().password === password
-        ) {
-          userFound = true;
-          const user = doc.data();
-          user.id = doc.id;
-          delete user.password;
-          const token = generateToken(60, user);
-          const refreshToken = generateToken(60 * 60, user);
-          db.collection("RefreshTokens").add({
-            refreshToken: refreshToken,
-            date: new Date(),
-          });
+  bcrypt.hash("test", saltRounds, (err: any, hash: any) => {
+    if (err) {
+      // Handle error
+      return;
+    }
 
-          res.status(200).send({ token, refreshToken, user });
-        }
-      });
+    // Hashing successful, 'hash' contains the hashed password
+    console.log("Hashed password:", hash);
+  });
+};
 
-      if (!userFound) {
-        res.status(400).send({ message: "Bad username or password!" });
-      }
-    })
-    .catch((error: any) => {
-      console.log("Error getting users:", error);
-      res.status(500).send("Error getting users");
+// hash();
+
+// app.post("/login", (req, res) => {
+//   const username = req.body.username;
+//   const password = req.body.password;
+
+//   db.collection("Users")
+//     .get()
+//     .then((snapshot: any) => {
+//       let userFound: boolean = false;
+//       snapshot.forEach((doc: any) => {
+//         if (
+//           doc.data().username === username &&
+//           doc.data().password === password
+//         ) {
+//           userFound = true;
+//           const user = doc.data();
+//           user.id = doc.id;
+//           delete user.password;
+//           const token = generateToken(60, user);
+//           const refreshToken = generateToken(60 * 60, user);
+//           db.collection("RefreshTokens").add({
+//             refreshToken: refreshToken,
+//             date: new Date(),
+//           });
+
+//           res.status(200).send({ token, refreshToken, user });
+//         }
+//       });
+
+//       if (!userFound) {
+//         res.status(400).send({ message: "Bad username or password!" });
+//       }
+//     })
+//     .catch((error: any) => {
+//       console.log("Error getting users:", error);
+//       res.status(500).send("Error getting users");
+//     });
+// });
+
+app.post("/login", async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    const usersSnapshot = await db
+      .collection("Users")
+      .where("username", "==", username)
+      .get();
+    if (usersSnapshot.empty) {
+      return res.status(404).send({ message: "Bad username or password!" });
+    }
+
+    const userDoc = usersSnapshot.docs[0]; // Assuming username is unique
+    const user = userDoc.data();
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+      return res.status(401).send("Authentication failed.");
+    }
+
+    // Passwords match, authentication successful
+    console.log("Passwords match! User authenticated.");
+    delete user.password; // Remove password before sending user data
+    const token = generateToken(60, user);
+    const refreshToken = generateToken(60 * 60, user);
+    await db.collection("RefreshTokens").add({
+      refreshToken: refreshToken,
+      date: new Date(),
     });
+
+    // Send response
+    res.status(200).send({ token, refreshToken, user });
+  } catch (error) {
+    console.error("Error during login:", error);
+    res.status(500).send({ message: "An error occurred during login." });
+  }
 });
 
 app.delete("/logout", (req, res) => {
